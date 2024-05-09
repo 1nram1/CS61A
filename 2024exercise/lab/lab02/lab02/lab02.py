@@ -14,6 +14,11 @@ def composite_identity(f, g):
     False
     """
     "*** YOUR CODE HERE ***"
+    # def c_i(x):
+    #     return f(g(x)) == g(f(x))
+    # return c_i
+    return lambda x: f(g(x)) == g(f(x))
+
 
 
 def sum_digits(y):
@@ -60,8 +65,17 @@ def count_cond(condition):
     8
     """
     "*** YOUR CODE HERE ***"
+   
+    def func(n):
+        count = 0
+        for i in range(1,n + 1,1):
+            if condition(n,i):
+                count += 1
+        return count
+    return func
 
 
+#最小公倍数
 def multiple(a, b):
     """Return the smallest number n that is a multiple of both a and b.
 
@@ -71,7 +85,11 @@ def multiple(a, b):
     42
     """
     "*** YOUR CODE HERE ***"
-
+    n = 1
+    while True:
+        if n % a == 0 and n % b == 0:
+            return n
+    n += 1
 
 
 def cycle(f1, f2, f3):
@@ -101,4 +119,52 @@ def cycle(f1, f2, f3):
     19
     """
     "*** YOUR CODE HERE ***"
+    # def g(n):
+    #     def h(x):
+    #         if n == 0 :
+    #             return x
+    #         elif n == 1 :
+    #             return f1(x)
+    #         elif n == 2 :
+    #             return f2(f1(x))
+    #         elif n == 3 :
+    #             return f3(f2(f1(x)))
+    #         else :
+    #             i,result = 1,x
+    #             while i <= n:
+    #                 if i % 3 == 1:
+    #                     result = f1(result)
+    #                 elif i % 3 == 2:
+    #                     result = f2(result)
+    #                 elif i % 3 == 0:
+    #                     result = f3(result)
+    #                 i += 1
+    #             return result 
+    #     return h
+    # return g
+
+
+
+    # def g(n):
+    #     def h(x):
+    #         i = 0
+    #         while i < n:
+    #             if i % 3 == 0 :
+    #                 x = f1(x)
+    #             elif i % 3 == 1:
+    #                 x = f2(x)
+    #             else :
+    #                 x = f3(x)
+    #             i += 1
+    #         return x
+    #     return h
+    # return g
+
+    def g(n):
+        def h(x):
+            if n == 0:
+                return x
+            return cycle(f2,f3,f1)(n - 1)(f1(x))
+        return h
+    return g
 

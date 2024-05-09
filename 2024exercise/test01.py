@@ -1,10 +1,42 @@
-def f(x):
+def sevens(n,k):
+    """Return the (clockwise) position of who says n among k players.
+
+    >>> sevens(2, 5)
+    2
+    >>> sevens(6, 5)
+    1
+    >>> sevens(7, 5)
+    2
+    >>> sevens(8, 5)
+    1
+    >>> sevens(9, 5)
+    5
+    >>> sevens(18, 5)
+    2
     """
-    just for test
-    >>> f(4)
-    16
-    >>> f(-3)
-    9
-    """
-    return x*x 
+    #类似循环队列，但要整体移动一位，让index起始为0
+    #who - 1 :(0,k-1)
+    who,direction= 1,1
+    for i in range(1,n + 1,1):
+        if i == n:
+            return who
+        if has_seven(i):
+            direction = -1 * direction
+        who = ((direction + who - 1 + k) % k) + 1
+
+        
+        
+
+
+
+def has_seven(n):
+    """ find out whether a number has the digit 7 recrusively"""
+    if n == 0:
+        return False
+    elif n % 10 == 7 or n % 7 == 0:
+        return True
+    else:
+        return has_seven(n // 10)
+    
+print(sevens(18,5))
 
