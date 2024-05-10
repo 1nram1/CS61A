@@ -34,7 +34,6 @@ def roll_dice(num_rolls, dice=six_sided):
     return sum
 
 
-roll_dice(2, make_test_dice(4, 6, 1))
 
 def boar_brawl(player_score, opponent_score):
     """Return the points scored by rolling 0 dice according to Boar Brawl.
@@ -44,11 +43,14 @@ def boar_brawl(player_score, opponent_score):
     """
     # BEGIN PROBLEM 2
     "*** YOUR CODE HERE ***"
-    # END PROBLEM 2
+    
     digit_current = player_score % 10
     digit_opponent = opponent_score // 10  % 10
     score = 3 * abs(digit_current - digit_opponent)
+    if score == 0 :
+        score = 1
     return score
+    # END PROBLEM 2
 
 
 
@@ -71,12 +73,9 @@ def take_turn(num_rolls, player_score, opponent_score, dice=six_sided):
     if num_rolls :
         return roll_dice(num_rolls,dice)
     return boar_brawl(player_score,opponent_score)
-
-
-
-
-
     # END PROBLEM 3
+
+
 
 
 
@@ -179,9 +178,26 @@ def play(strategy0, strategy1, update,
     dice:      A function of zero arguments that simulates a dice roll.
     goal:      The game ends and someone wins when this score is reached.
     """
-    who = 0  # Who is about to take a turn, 0 (first) or 1 (second)
+    who = 0  
+    # Who is about to take a turn, 0 (first) or 1 (second)
+    # If who is the current player, the next player is 1 - who
     # BEGIN PROBLEM 5
     "*** YOUR CODE HERE ***"
+    num_rolls = 0
+    while score0 < goal and score1 < goal:
+        if who == 0:
+            num_rolls = strategy0(score0,score1)
+            score0 = update(num_rolls,score0,score1,dice)  
+        else :
+            num_rolls = strategy1(score1,score0)
+            score1 = update(num_rolls,score1,score0,dice)
+        who = 1 - who
+    return score0,score1        
+        
+  
+    
+
+
     # END PROBLEM 5
     return score0, score1
 
@@ -207,6 +223,7 @@ def always_roll(n):
     assert n >= 0 and n <= 10
     # BEGIN PROBLEM 6
     "*** YOUR CODE HERE ***"
+    return lambda x,y : n
     # END PROBLEM 6
 
 
@@ -238,6 +255,16 @@ def is_always_roll(strategy, goal=GOAL):
     """
     # BEGIN PROBLEM 7
     "*** YOUR CODE HERE ***"
+    
+    number = strategy(0,0)
+    for i in range(goal):
+        for j in range(goal):
+            if strategy(i,j) != number :
+                return False
+    return True
+
+
+
     # END PROBLEM 7
 
 
@@ -254,6 +281,12 @@ def make_averaged(original_function, samples_count=1000):
     """
     # BEGIN PROBLEM 8
     "*** YOUR CODE HERE ***"
+    def make_averaged_helper(*args):
+        sum = 0
+        for i in range(samples_count) :
+            sum += original_function(*args)
+        return sum / samples_count
+    return make_averaged_helper
     # END PROBLEM 8
 
 
@@ -268,7 +301,24 @@ def max_scoring_num_rolls(dice=six_sided, samples_count=1000):
     """
     # BEGIN PROBLEM 9
     "*** YOUR CODE HERE ***"
+    score = 0
+    j = 0
+    #对于相同的参数，roll_dice get_average_score 这种  non-pure function
+    # These functions are non-pure because they may have different return values each time they are called,
+    #and so a side-effect of calling the function is changing what will be returned when the function is called again.
+    #所以，不能乱多次调用non-pure function 。就比如下面，每个i只能调一次non-pure functio
+    
+    for i in range(1,11,1):
+        get_average_score = make_averaged(roll_dice,samples_count)
+        average_score = get_average_score(i,dice)
+        if average_score > score :
+            score = average_score
+            j = i
+    return j
+
     # END PROBLEM 9
+
+
 
 
 def winner(strategy0, strategy1):
@@ -312,25 +362,75 @@ def boar_strategy(score, opponent_score, threshold=11, num_rolls=6):
     points, and returns NUM_ROLLS otherwise. Ignore score and Sus Fuss.
     """
     # BEGIN PROBLEM 10
-    return num_rolls  # Remove this line once implemented.
+    test_score = boar_brawl(score,opponent_score)
+    if test_score >= threshold :
+        return 0
+    return num_rolls
+
     # END PROBLEM 10
 
 
 def sus_strategy(score, opponent_score, threshold=11, num_rolls=6):
     """This strategy returns 0 dice when your score would increase by at least threshold."""
     # BEGIN PROBLEM 11
-    return num_rolls  # Remove this line once implemented.
+    #test_score = sus_update(0,score,opponent_score,dice)
+    test_score = boar_brawl(score,opponent_score)
+    test_score = sus_points(test_score + score)
+    test_score = test_score - score
+    if test_score >= threshold :
+        return 0
+    return num_rolls  
     # END PROBLEM 11
 
 
 def final_strategy(score, opponent_score):
+    # """Write a brief description of your final strategy.
+
+    # *** YOUR DESCRIPTION HERE ***
+    # """
+    # # BEGIN PROBLEM 12
+    # return sus_strategy(score,opponent_score,make_averaged(roll_dice,100)(6))
+
+    # # END PROBLEM 12
+
+#别人的startegy,很一般，也有些不合理的地方
     """Write a brief description of your final strategy.
 
-    *** YOUR DESCRIPTION HERE ***
+    *This strategy aims to balance between gaining as many points as possible while minimizing the risk of scoring too high 
+    and triggering the Sus Fuss rule. 
+    It also considers the Boar Brawl outcome to decide whether to roll dice or not.
+    
+    - If the player is close to the goal (within 10 points), the strategy becomes more conservative, preferring to roll fewer dice to avoid reaching the goal and losing.
+    - If the opponent is close to the goal, the strategy becomes aggressive, trying to catch up quickly by rolling more dice.
+    - If the Boar Brawl outcome is favorable (giving at least 10 points), the strategy will choose not to roll dice, securing the points without risking a low roll.
+      - Otherwise, the strategy will roll a moderate number of dice (e.g., 3 to 5) to steadily increase the score.
+    
+    The specific numbers and conditions can be adjusted based on further analysis and testing.
     """
     # BEGIN PROBLEM 12
-    return 6  # Remove this line once implemented.
-    # END PROBLEM 12
+    # Define a conservative threshold for when the player is close to the goal
+    conservative_threshold = 10
+
+    # Check if the player is close to the goal
+    if score >= GOAL - conservative_threshold:
+        # Be conservative and roll fewer dice
+        return 1 if score > opponent_score else 2
+
+    # Check if the opponent is close to the goal
+    if opponent_score >= GOAL - conservative_threshold:
+        # Be aggressive and roll more dice to catch up
+        return 5
+
+    # Calculate the Boar Brawl outcome
+    boar_points = boar_brawl(score, opponent_score)
+
+    # If Boar Brawl gives a significant advantage, don't roll dice
+    if boar_points >= 10:
+        return 0
+
+    # Otherwise, roll a moderate number of dice to steadily increase the score
+    return 3
+    # END PROBLEM 12 
 
 
 ##########################
