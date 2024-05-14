@@ -31,6 +31,32 @@ def pick(paragraphs, select, k):
     """
     # BEGIN PROBLEM 1
     "*** YOUR CODE HERE ***"
+    if k >= len(paragraphs):
+        return ''
+    
+    #其实就算找到第k + 1个满足某个条件的值 ， k从0开始
+    #version 1
+    # i ,j = 0,0
+    # while j <= k:
+    #     if i == len(paragraphs):
+    #         return ''
+    #     if select(paragraphs[i]) :
+    #         j += 1
+    #     i += 1
+    # return paragraphs[i - 1]
+
+    #version 2
+    #count 表示目前这个i是第几个满足条件的值
+    count = 0
+    for i in paragraphs:
+        if select(i):
+            count += 1
+        if count == k + 1 :
+            return i
+    return ''
+
+
+
     # END PROBLEM 1
 
 
@@ -50,6 +76,18 @@ def about(subject):
     assert all([lower(x) == x for x in subject]), 'subjects should be lowercase.'
     # BEGIN PROBLEM 2
     "*** YOUR CODE HERE ***"
+    def about_sth(paragraph):
+        #split函数，通过空格把单词与单词分开，才能实现exact match
+
+        target_par = split(lower(remove_punctuation(paragraph)))
+        for i in subject:
+            if i in target_par:
+                return True
+        return False
+    return about_sth
+    
+
+
     # END PROBLEM 2
 
 
@@ -80,6 +118,29 @@ def accuracy(typed, source):
     source_words = split(source)
     # BEGIN PROBLEM 3
     "*** YOUR CODE HERE ***"
+    #以一个whitespace为一个单位，百分比是你敲对的单位数除以总的单位数决定的
+    #以整个单词为一个单位。不是以每一个字母来算你的正确百分比
+    #用的是 / float 除法
+    #tab don't count as words
+
+    i, j ,count= 0, 0, 0
+    length_type = len(typed_words)
+    length_source = len(source_words)
+
+    if length_type == 0 and length_source == 0:
+        return 100.0
+    if length_type ==0 or length_source == 0:
+        return 0.0
+    while j < length_source and i < length_type :
+        if typed_words[i] == source_words[j] :
+            count += 1
+        i, j = i + 1, j + 1
+    return (count / length_type) * 100 
+
+
+
+
+
     # END PROBLEM 3
 
 
@@ -99,6 +160,11 @@ def wpm(typed, elapsed):
     # BEGIN PROBLEM 4
     "*** YOUR CODE HERE ***"
     # END PROBLEM 4
+    length = len(typed) / 5
+    spend_time = elapsed / 60
+    return length / spend_time
+
+
 
 
 ############
@@ -127,6 +193,23 @@ def autocorrect(typed_word, word_list, diff_function, limit):
     """
     # BEGIN PROBLEM 5
     "*** YOUR CODE HERE ***"
+    if typed_word in word_list :
+        return typed_word
+    min_diff_word = typed_word
+    min_diff = limit + 1
+    for word in word_list:
+        this_diff = diff_function(typed_word,word,limit)
+        if this_diff < min_diff:
+            min_diff = this_diff
+            min_diff_word = word
+    if min_diff > limit :
+        return typed_word
+    return min_diff_word
+#alternative:
+
+    
+
+
     # END PROBLEM 5
 
 
