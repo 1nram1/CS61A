@@ -205,8 +205,14 @@ def autocorrect(typed_word, word_list, diff_function, limit):
     if min_diff > limit :
         return typed_word
     return min_diff_word
-#alternative:
-
+    #alternative:
+    if typed_word in word_list:
+        return typed_word
+    word = min(word_list,key = lambda word: diff_function(typed_word,word,limit))
+    min_diff = diff_function(typed_word,word,limit)
+    if min_diff <= limit:
+        return word
+    return typed_word
     
 
 
@@ -236,13 +242,43 @@ def feline_fixes(typed, source, limit):
     5
     """
     # BEGIN PROBLEM 6
-    assert False, 'Remove this line'
+
+    # diff_now 
+    # if a > limit:
+    #     return a
+    length_diff = abs(len(typed) - len(source))
+    if length_diff > limit :
+        return limit + 1
+    
+    def feline_fix_helper(type,source,diff_now):
+        if diff_now + length_diff > limit:
+            return limit + 1
+        if len(type) > 0 and len(source) > 0:
+            if type[0] == source[0]:
+                return feline_fix_helper(type[1:],source[1:],diff_now)
+            return feline_fix_helper(type[1:],source[1:],diff_now + 1)
+        return diff_now + length_diff
+    return feline_fix_helper(typed,source,0)    
+
     # END PROBLEM 6
 
 
 ############
 # Phase 2B #
 ############
+
+
+# 该函数是计算两个字符串之间编辑距离的算法（例如Levenshtein距离），
+# 这个函数计算出的应该是最小的编辑次数。
+# 编辑距离的算法工作方式是，它会考虑所有可能的编辑操作序列，
+# 然后找出将一个字符串转换成另一个字符串所需的最少操作数。
+# 在遍历了所有可能的操作序列后，它会产生一个最小的编辑次数，
+# 这是将一个字符串转换为另一个字符串所需的最小单字符编辑（插入、删除或替换）次数。如果算法实现得当，那么它就能够确保找到最优解。
+# 请注意，算法的效率很大程度上取决于它是如何实现的。
+# 未经优化的递归解法可能会重复计算许多子问题，从而导致效率低下。
+# 动态规划方法通过存储中间结果来避免重复计算，通常可以提高效率。
+# 如果实现了这些优化措施，算法就能够在合理的时间内求出最小编辑距离。
+
 
 
 def minimum_mewtations(typed, source, limit):
@@ -259,32 +295,152 @@ def minimum_mewtations(typed, source, limit):
     2
     >>> minimum_mewtations("ckiteus", "kittens", big_limit) # ckiteus -> kiteus -> kitteus -> kittens
     3
-    """
-    assert False, 'Remove this line'
-    if ___________: # Base cases should go here, you may add more base cases as needed.
+    """ 
+    #不一定要用helper_function。用helper function 主要就是因为要记录已经有多少不同了（已进行几次edit）
+    #注意： 或者最多还剩多少可以不同（还可以edit几次）。所以直接用参数limit来反映edit次数（还剩几次）
+    #另外，注意题目让你简化的时操作次数，并不是返回值必须是离limit很近
+
+
+    #base case
+    if  len(typed) == 0 or len(source) == 0 : # Base cases should go here, you may add more base cases as needed.
         # BEGIN
         "*** YOUR CODE HERE ***"
+        return len(typed) + len(source)
         # END
+
+
+
     # Recursive cases should go below here
-    if ___________: # Feel free to remove or add additional cases
+    if typed[0] == source[0] : 
         # BEGIN
         "*** YOUR CODE HERE ***"
+        return minimum_mewtations(typed[1:],source[1:],limit)
         # END
     else:
-        add = ... # Fill in these lines
-        remove = ...
-        substitute = ...
+
+        #note: 强调过很多次，写递归时，不要去想着写出能一次找出最优解的写法。
+        #写递归无法写成最优解
+        #永远记住：递归只是 暴力解法。他是帮你遍历所有情况（难以想象的多的情况）
+        #真的是完完全全的所有情况，去看哪个是个解。所以才是指数增长。记住了，所有情况！
+        #写的时候要去想，我的代码如何才能写成遍历了所有情况的
+        #而不是去想如何直接找到最优解，不去管别的情况
+        #所以递归会遍历到很多，多余，一眼就不可能成功的情况
+        #牢记：调用递归时，默认这个函数功能已经得到实现。比较容易去思考该怎么写
+        #比如这个调用 minimum_mewtations(type.source,limit),我们就要想成，他会返回从type到source
+        #的“最小编辑次数”
+
+        #note:递归还有一个层次的问题，要注意 应该在哪个层次思考这个问题
+
+
+
+        #编辑次数到头，还没完全相等，这种情况已经不是答案了。return 1 ，经过
+        #递归返回值相加后。  最终返回值就变成 1 + limit了
+        if limit == 0:
+            return 1
+
+
+        # 第一个字符不相等，我们有三种处理的办法（已经是所有的办法了）
+
+        #这是逻辑上的 add ,remove substitute
+
+        add = 1 + minimum_mewtations(typed,source[1:],limit - 1) 
+        remove = 1 + minimum_mewtations(typed[1:],source,limit - 1)
+        substitute = 1 + minimum_mewtations(typed[1:],source[1:],limit - 1)
+
+        # 计算最小值：最后一步是比较这三种编辑操作产生的编辑距离，并返回最小值，
+        # 这就是完成一个编辑操作后所需要的最小编辑次数。
         # BEGIN
         "*** YOUR CODE HERE ***"
+        return min(add,remove,substitute)
         # END
+
+   
+
+    #下面你自己写的代码，尝试去判断什么情况该执行add，什么情况执行remove，substitute。
+    #这种想法不应该出现在递归里面，我说了:递归就是要遍历所有清空，他不去找最优解
+    #就是纯纯的把每种情况都看一遍。
+
+
+
+    # def mininum_helper(typed,source,diff_now) :
+    #     length = abs(len(source) - len(typed))
+    #     if diff_now + length > limit :
+    #         return limit + 1    
+    #     if typed[0] != source[0] and len(typed) > len(source) :
+    #         return minimum_mewtations(source[0] + typed,source,diff_now + 1)
+    #     elif typed[0] != source[0]:
+    #         typed[0] = source[0]
+    #         return minimum_mewtations(typed,source,diff_now + 1)
+    #     else :
+    #         return minimum_mewtations(typed,source,diff_now)
+    
+
+
+
+
+
+
+
 
 
 def final_diff(typed, source, limit):
+
     """A diff function that takes in a string TYPED, a string SOURCE, and a number LIMIT.
     If you implement this function, it will be used."""
-    assert False, 'Remove this line to use your final_diff function.'
 
-FINAL_DIFF_LIMIT = 6 # REPLACE THIS WITH YOUR LIMIT
+    FINAL_DIFF_LIMIT = 6 # REPLACE THIS WITH YOUR LIMIT
+        #base case
+    if  len(typed) == 0 or len(source) == 0 : # Base cases should go here, you may add more base cases as needed.
+        # BEGIN
+        "*** YOUR CODE HERE ***"
+        return len(typed) + len(source)
+        # END
+
+
+
+    # Recursive cases should go below here
+    if typed[0] == source[0] : 
+        # BEGIN
+        "*** YOUR CODE HERE ***"
+        return minimum_mewtations(typed[1:],source[1:],limit)
+        # END
+    else:
+
+        #note: 强调过很多次，写递归时，不要去想着写出能一次找出最优解的写法。
+        #写递归无法写成最优解
+        #永远记住：递归只是 暴力解法。他是帮你遍历所有情况（难以想象的多的情况）
+        #真的是完完全全的所有情况，去看哪个是个解。所以才是指数增长。记住了，所有情况！
+        #写的时候要去想，我的代码如何才能写成遍历了所有情况的
+        #而不是去想如何直接找到最优解，不去管别的情况
+        #所以递归会遍历到很多，多余，一眼就不可能成功的情况
+        #牢记：调用递归时，默认这个函数功能已经得到实现。比较容易去思考该怎么写
+        #比如这个调用 minimum_mewtations(type.source,limit),我们就要想成，他会返回从type到source
+        #的“最小编辑次数”
+
+        #note:递归还有一个层次的问题，要注意 应该在哪个层次思考这个问题
+
+
+
+        #编辑次数到头，还没完全相等，这种情况已经不是答案了。return 1 ，经过
+        #递归返回值相加后。  最终返回值就变成 1 + limit了
+        if limit == 0:
+            return 1
+
+
+        # 第一个字符不相等，我们有三种处理的办法（已经是所有的办法了）
+
+        #这是逻辑上的 add ,remove substitute
+
+        add = 1 + minimum_mewtations(typed,source[1:],limit - 1) 
+        remove = 1 + minimum_mewtations(typed[1:],source,limit - 1)
+        substitute = 1 + minimum_mewtations(typed[1:],source[1:],limit - 1)
+
+        # 计算最小值：最后一步是比较这三种编辑操作产生的编辑距离，并返回最小值，
+        # 这就是完成一个编辑操作后所需要的最小编辑次数。
+        # BEGIN
+        "*** YOUR CODE HERE ***"
+        return min(add,remove,substitute)
+        # END
 
 
 ###########
@@ -317,6 +473,18 @@ def report_progress(typed, source, user_id, upload):
     """
     # BEGIN PROBLEM 8
     "*** YOUR CODE HERE ***"
+    i = 0
+    count = 0
+    while i < len(typed):
+        if typed[i] != source[i]:
+            break
+        i += 1
+        count += 1
+    ratio = count / len(source)
+    upload({'id': user_id, 'progress': ratio})
+    return ratio
+        
+
     # END PROBLEM 8
 
 
@@ -339,6 +507,19 @@ def time_per_word(words, timestamps_per_player):
     """
     # BEGIN PROBLEM 9
     "*** YOUR CODE HERE ***"
+    
+    length = len(timestamps_per_player)
+    times = []
+    for i in  range(length) :
+        size = len(timestamps_per_player[i])
+        for j in range(size - 1):
+            timestamps_per_player[i][j] = timestamps_per_player[i][j + 1] - timestamps_per_player[i][j]
+        times.append(timestamps_per_player[i][:-1])
+
+    return match(words,times)
+
+
+
     # END PROBLEM 9
 
 
@@ -361,6 +542,30 @@ def fastest_words(match):
     word_indices = range(len(get_all_words(match)))    # contains an *index* for each word
     # BEGIN PROBLEM 10
     "*** YOUR CODE HERE ***"
+    res = []
+    for _ in player_indices:
+        res.append([])
+    for i in word_indices:
+        #player_fast = min(player_indices,key=time(,i,match))
+        min_time = time(match,0,i)
+        #min_player = 0
+        for j in player_indices:
+            if time(match,j,i) < min_time and j != 0:
+                min_time = time(match,j,i)
+                min_player = j
+        word = get_word(match,i)
+        res[min_player].append(word)
+    return res
+
+
+            
+        
+
+
+
+
+
+
     # END PROBLEM 10
 
 
