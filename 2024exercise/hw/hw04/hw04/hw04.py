@@ -21,6 +21,31 @@ def deep_map(f, s):
     True
     """
     "*** YOUR CODE HERE ***"
+    # if 
+    #   A 
+    # else 
+    #   B
+    # 和 if A
+    #    B
+    #是完全不一样的哦！！一定要注意。
+    #如果写成 if   : return A。
+    #           B
+    #那就更不一样了！！
+
+    length = len(s)
+    for i in range(length):
+        if type(s[i]) == list:
+            deep_map(f,s[i])
+        else:    
+            s[i] = f(s[i])
+        #写成下面这个就大错特错
+        # if type(s[i]) == list:
+        #     return deep_map(f,s[i])   
+        # s[i] = f(s[i])
+
+# f = lambda x : x*x
+# deep_map(lambda x : x*x,[1, 2, [3, [4], 5], 6])
+
 
 
 HW_SOURCE_FILE=__file__
@@ -65,15 +90,21 @@ def end(s):
     assert is_arm(s), "must call end on an arm"
     return s[2]
 
+
+
+
 def planet(mass):
     """Construct a planet of some mass."""
     assert mass > 0
     "*** YOUR CODE HERE ***"
+    return ['planet',mass]
+
 
 def mass(p):
     """Select the mass of a planet."""
     assert is_planet(p), 'must call mass on a planet'
     "*** YOUR CODE HERE ***"
+    return p[1]
 
 def is_planet(p):
     """Whether p is a planet."""
@@ -126,6 +157,11 @@ def balanced(m):
     True
     """
     "*** YOUR CODE HERE ***"
+    if is_planet(m):
+        return True
+    if total_mass(end(left(m))) * length(left(m)) ==  total_mass(end(right(m))) * length(right(m)) :
+        return balanced(end(left(m))) and balanced(end(right(m)))
+    return False
 
 
 HW_SOURCE_FILE=__file__
@@ -141,8 +177,47 @@ def max_path_sum(t):
     17
     """
     "*** YOUR CODE HERE ***"
+    #遍历所有情况，去找最大的
+    #重点！！ 记住这种递归找最大求和的写法
+
+    if is_leaf(t):
+        return label(t)
+    
+    #pythonic:
+    #用list comprehension 代替cpp中的for循环
+
+    # else:
+          #寻找各个子数的最大值中的最大值
+    #     return label(t) + max([max_path_sum(b) for b in branches(t)])
+
+    #cpp :  
+    #这道题的难点在于：如何能遍历所有子树，并且还能从中找到最大值
+    #solution: 使用for循环
+    
+    #每一层有每一层的highest_sum
+    highest_sum = 0
+    for b in branches(t):
+        #从b 这个子树开始的max_path_sum 和这一层的highest_sum比
+        #找到该层中的最大值
+        #比较不需要一定要用大于小于，可以用max函数
+        highest_sum = max(max_path_sum(b),highest_sum)
+    return label(t) + highest_sum
 
 
+
+    if is_leaf(t):
+        return label(t)
+    else:
+        return label(t) + max([max_path_sum(b) for b in branches(b)])
+
+
+    if is_leaf(t):
+        return label(t)
+    else:
+        highest_sum = 0
+        for b in branches(t):
+            highest_sum = max(max_path_sum(b),highest_sum)
+        return label(t) + highest_sum
 
 # Tree Data Abstraction
 

@@ -27,8 +27,18 @@ def insert_items(s, before, after):
     True
     """
     "*** YOUR CODE HERE ***"
+    i = 0
+    while i < len(s) :
+        if s[i] == before :
+            s.insert(i + 1,after)
+            i += 2
+        else :
+            i += 1
+    return s
 
 
+
+#this function aims to group s(a list) by fn
 def group_by(s, fn):
     """Return a dictionary of lists that together contain the elements of s.
     The key for each list is the value that fn returns when called on any of the
@@ -40,13 +50,23 @@ def group_by(s, fn):
     {9: [-3, 3], 4: [-2, 2], 1: [-1, 1], 0: [0]}
     """
     grouped = {}
-    for ____ in ____:
-        key = ____
+    for e in s :
+        key = fn(e)
         if key in grouped:
-            ____
+            grouped[key].append(e)
         else:
-            grouped[key] = ____
+            #key已经有了，就直接加进组里。
+            #还没有这个key，就新创一个组
+            grouped[key] = [e]
     return grouped
+    # grouped = {}
+    # for e in s:
+    #     key = fn(e)
+    #     if key in grouped:
+    #         grouped[key].append(e)
+    #     else:
+    #         grouped[key] = e
+    # return grouped
 
 
 def count_occurrences(t, n, x):
@@ -71,6 +91,14 @@ def count_occurrences(t, n, x):
     2
     """
     "*** YOUR CODE HERE ***"
+    count = 0
+    for _ in range(n):
+        this_one = next(t)
+        if this_one == x:
+            count += 1
+    return count
+
+
 
 
 def repeated(t, k):
@@ -94,6 +122,43 @@ def repeated(t, k):
     """
     assert k > 1
     "*** YOUR CODE HERE ***"
+# 初始化两个变量，一个用于存储当前元素current_element，
+#另一个用于计数count。由于我们在开始时还没有遍历任何元素，可以将current_element初始化为调用next(t)的结果，并将count设为1。
+# 进入一个循环，在循环中，我们会尝试不断地从迭代器t中取得下一个元素，同时检查当前元素与上一个是否相同。
+# 如果当前元素与上一个元素相同，就将count加一。如果count达到了k，这意味着我们找到了连续出现k次的元素，此时直接返回current_element。
+# 如果当前元素与上一个元素不同，就需要重置count为1，并更新current_element为这个新的不同的元素。
+# 重复上述步骤，直到找到满足条件的元素。
+    last_item = next(t)
+    count = 1
+    while True:
+        current_item = next(t)
+        if current_item == last_item:
+            count += 1
+            if count == k:
+                return current_item
+        else:
+            count = 1
+            last_item = current_item
+
+# iterable - version
+def repeated_iterable(t,k):
+    assert k > 1
+    last_item = t[0]
+    count = 1
+    length = len(t)
+    for i in range(1,length):
+        current_item = t[i]
+        if current_item == last_item:
+            count += 1
+            if count == k:
+                return current_item
+        else:
+            count = 1
+            last_item = current_item
+    return None
+        
+
+    
 
 
 def sprout_leaves(t, leaves):
@@ -130,6 +195,12 @@ def sprout_leaves(t, leaves):
           2
     """
     "*** YOUR CODE HERE ***"
+    #只能直接用tree函数，创建一棵树，想要在原来的树的基础上加分支，也只能用tree来加
+    #你要加的分支必然是树。（这是树的定义）
+    if is_leaf(t):
+        return tree(label(t),[tree(leaf) for leaf in leaves])
+    else:
+        return tree(label(t),[sprout_leaves(s,leaves) for s in branches(t)])
 
 
 def partial_reverse(s, start):
@@ -145,6 +216,13 @@ def partial_reverse(s, start):
     [1, 2, 7, 6, 5, 3, 4]
     """
     "*** YOUR CODE HERE ***"
+    end = len(s) - 1
+    while start < end:
+        s[start],s[end] = s[end],s[start]
+        start, end = start + 1,end - 1
+    
+
+
 
 
 
