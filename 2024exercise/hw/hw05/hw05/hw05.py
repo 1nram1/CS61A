@@ -9,6 +9,7 @@ def hailstone(n):
     1
     """
     "*** YOUR CODE HERE ***"
+    
 
 
 def merge(a, b):

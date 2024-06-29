@@ -4,3 +4,5 @@
 'repeated-correct', (1536, 66)
 'sprout_leaves-correct', (2048, 66)
 'partial_reverse-correct', (2560, 66)
+'List Mutation-correct', (3072, 66)
+'Iterators-correct', (3584, 66)
