@@ -7,6 +7,9 @@ class Transaction:
     def changed(self):
         """Return whether the transaction resulted in a changed balance."""
         "*** YOUR CODE HERE ***"
+        if self.after - self.before :
+            return True
+        return False
 
     def report(self):
         """Return a string describing the transaction.
@@ -21,6 +24,11 @@ class Transaction:
         msg = 'no change'
         if self.changed():
             "*** YOUR CODE HERE ***"
+            if self.after - self.before > 0:
+                message = 'increased'
+            else:
+                message = 'decreased'
+            msg = f'{message} {self.before}->{self.after}'
         return str(self.id) + ': ' + msg
 
 class Account:
@@ -67,11 +75,15 @@ class Account:
     def __init__(self, account_holder):
         self.balance = 0
         self.holder = account_holder
+        self.transactions = []
+        self.number_for_transaction = 0
 
     def deposit(self, amount):
         """Increase the account balance by amount, add the deposit
         to the transaction history, and return the new balance.
         """
+        self.transactions.append(Transaction(self.number_for_transaction,self.balance,self.balance + amount))
+        self.number_for_transaction += 1
         self.balance = self.balance + amount
         return self.balance
 
@@ -79,8 +91,13 @@ class Account:
         """Decrease the account balance by amount, add the withdraw
         to the transaction history, and return the new balance.
         """
+        
         if amount > self.balance:
+            self.transactions.append(Transaction(self.number_for_transaction,self.balance,self.balance))
+            self.number_for_transaction += 1
             return 'Insufficient funds'
+        self.transactions.append(Transaction(self.number_for_transaction,self.balance,self.balance - amount))
+        self.number_for_transaction += 1
         self.balance = self.balance - amount
         return self.balance
 
@@ -108,11 +125,11 @@ class Server:
 
     def send(self, email):
         """Append the email to the inbox of the client it is addressed to."""
-        ____.inbox.append(email)
+        self.clients[email.recipient_name].inbox.append(email)
 
     def register_client(self, client):
         """Add a client to the dictionary of clients."""
-        ____[____] = ____
+        self.clients[client.name] = client
 
 class Client:
     """A client has a server, a name (str), and an inbox (list).
@@ -135,12 +152,13 @@ class Client:
         self.inbox = []
         self.server = server
         self.name = name
-        server.register_client(____)
+        server.register_client(self)
 
     def compose(self, message, recipient_name):
         """Send an email with the given message to the recipient."""
-        email = Email(message, ____, ____)
+        email = Email(message, self, recipient_name)
         self.server.send(email)
+
 
 
 def make_change(amount, coins):
@@ -177,6 +195,16 @@ def make_change(amount, coins):
     if amount < smallest:
         return None
     "*** YOUR CODE HERE ***"
+    if amount == smallest:
+        return [smallest]
+
+    #说了很多次，写递归函数时，把这个函数想象成已经实现了他应该有的功能去写。
+
+    if make_change(amount - smallest,rest) :
+        return [smallest] + make_change(amount - smallest,rest)
+    else:
+        return make_change(amount,rest)
+
 
 def remove_one(coins, coin):
     """Remove one coin from a dictionary of coins. Return a new dictionary,
@@ -195,6 +223,8 @@ def remove_one(coins, coin):
     if count:
         copy[coin] = count      # The coin denomination is added back
     return copy
+
+
 
 class ChangeMachine:
     """A change machine holds a certain number of coins, initially all pennies.
@@ -272,4 +302,20 @@ class ChangeMachine:
     def change(self, coin):
         """Return change for coin, removing the result from self.coins."""
         "*** YOUR CODE HERE ***"
+        # 就是交换，交换不了就原样返回，不进行操作）
+        if coin == 1:
+            return [1]
+        result = make_change(coin,self.coins)
+        if result:
+            
+            for value in result:
+                self.coins = remove_one(self.coins, value)
+            if coin in self.coins:
+                self.coins[coin] += 1
+            else:
+                self.coins[coin] = 1
+            # self.coins[coin] = 1 + self.coins.get(coin,0) 也能起到使coin加1，不管之前有没有coin
+            
+            return result
+        return [coin]
 

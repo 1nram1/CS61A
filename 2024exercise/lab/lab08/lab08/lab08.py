@@ -12,6 +12,18 @@ def cumulative_mul(t):
     Tree(5040, [Tree(60, [Tree(3), Tree(4), Tree(5)]), Tree(42, [Tree(7)])])
     """
     "*** YOUR CODE HERE ***"
+    for subtree in t.branches:
+        cumulative_mul(subtree)
+        t.label *= subtree.label
+
+
+def cumulative_mul_alter(t):
+    for b in t.branches:
+        cumulative_mul_alter(b)
+    for b in t.branches:
+        t.label *= b.label
+
+
 
 
 def prune_small(t, n):
@@ -31,11 +43,11 @@ def prune_small(t, n):
     >>> t3
     Tree(6, [Tree(1), Tree(3, [Tree(1), Tree(2)])])
     """
-    while ___________________________:
-        largest = max(_______________, key=____________________)
-        _________________________
-    for __ in _____________:
-        ___________________
+    while len(t.branches) > n:
+        largest = max(t.branches, key=lambda n : n.label)
+        t.branches.remove(largest)
+    for b in t.branches:
+        prune_small(b,n)
 
 
 def delete(t, x):
@@ -58,13 +70,17 @@ def delete(t, x):
     Tree(1, [Tree(4), Tree(5), Tree(3, [Tree(6)]), Tree(6), Tree(7), Tree(8), Tree(4)])
     """
     new_branches = []
-    for _________ in ________________:
-        _______________________
+    # 写递归函数的核心： 1 一定要把这个函数当作他已经实现了他想要的功能来写，来递归
+    # 2 我们写递归时，要站在 只写一层的思维上去写，递归他实际上是有很多层的，我们写好一层即可。有点数学归纳法的感觉
+    for b in t.branches:
+        delete(b,x)
         if b.label == x:
-            __________________________________
+            # 如果在你的 Tree 类中，你需要往分支中添加新的子树，可以选择使用 append 方法。
+            # 如果你需要将多个子树合并到一个树中，则可以考虑使用 extend 方法
+            new_branches.extend(b.branches)
         else:
-            __________________________________
-    t.branches = ___________________
+            new_branches.append(b)
+    t.branches = new_branches
 
 
 class Tree:
