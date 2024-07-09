@@ -35,9 +35,18 @@ def linear(s):
             return complete(first,rest.rest)
     if s is Link.empty:
         return s
-    longest = s.first
-    while s.rest is not Link.empty:
-        while 
+    
+    longest = Link(s.first)
+    while s is not Link.empty:
+        t = s.rest
+        while t is not Link.empty:
+            d = t.first - s.first
+            candidate = Link(s.first,complete(t.first,t.rest))
+            if length(candidate) > length(longest):
+                longest = candidate
+            t = t.rest
+        s = s.rest
+    return longest
 
 
 def length(s):
@@ -80,3 +89,7 @@ class Link:
             string += str(self.first) + ' '
             self = self.rest
         return string + str(self.first) + '>'
+    
+
+
+#SQL
